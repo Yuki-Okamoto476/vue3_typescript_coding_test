@@ -1,4 +1,4 @@
-# vue3_typescript_composition
+# vue3_typescript_coding_test
 
 ## Project setup
 ```
