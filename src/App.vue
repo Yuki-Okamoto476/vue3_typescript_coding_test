@@ -1,27 +1,150 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <div class="pref">
+    <h1>コーディングテスト</h1>
+    <h2>都道府県</h2>
+    <div class="pref__list">
+      <div
+        v-for="(prefItem, index) in prefItems"
+        :key="index"
+        class="pref__item"
+      >
+        <input
+          :id="`pref-${index}`"
+          type="checkbox"
+          name="pref"
+          @change="createPopulationGraph(prefItem.prefCode, $event)"
+        />
+        <label :for="`pref-${index}`">{{ prefItem.prefName }}</label>
+      </div>
+    </div>
+    <highcharts :options="chartOptions"></highcharts>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import axios from 'axios';
+import { Chart } from 'highcharts-vue';
+import { defineComponent, onMounted, ref } from 'vue';
+
+interface PrefItems {
+  prefCode: number;
+  prefName: string;
+}
+
+interface chartSeries {
+  data: number;
+  name: string;
+}
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   components: {
-    HelloWorld,
+    highcharts: Chart,
+  },
+  setup() {
+    const prefItems = ref<PrefItems[]>([]);
+    const getPrefData = () => {
+      // const API_KEY = 'IcOTaQWbCRGx0Y3uUg1sUmvTzqgJByvUvCzqCXjr'
+      const REQUEST_URL =
+        'https://opendata.resas-portal.go.jp/api/v1/prefectures';
+      const config = {
+        headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
+        timeout: 30000,
+        params: {
+          cache: new Date().getTime(),
+        },
+      };
+      axios
+        .get(REQUEST_URL, config)
+        .then((response) => {
+          prefItems.value = response.data.result;
+        })
+        .catch(() => {
+          alert('データの取得に失敗しました');
+        });
+    };
+
+    const chartOptions = ref<any>({
+      series: [],
+      xAxis: {
+        categories: [
+          1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010,
+          2015, 2020, 2025, 2030, 2035, 2040, 2045,
+        ],
+        title: {
+          text: '年',
+        },
+      },
+      yAxis: {
+        title: {
+          text: '人口数',
+        },
+      },
+      title: {
+        text: '都道府県別人口推移',
+      },
+      credits: {
+        enabled: false,
+      },
+    });
+    const createPopulationGraph = (value: number, $event: any) => {
+      const matchedPref = prefItems.value.find(
+        (item) => item.prefCode === value
+      );
+      if ($event.target.checked) {
+        const REQUEST_URL = `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${value}`;
+        const config = {
+          headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
+          timeout: 30000,
+          params: {
+            cache: new Date().getTime(),
+          },
+        };
+        axios
+          .get(REQUEST_URL, config)
+          .then((response) => {
+            const result = response.data.result.data[0].data;
+            const resultData = [] as Array<number>;
+            for (let i = 0; i < result.length; i++) {
+              resultData.push(result[i].value);
+            }
+            chartOptions.value.series.push({
+              data: resultData,
+              name: matchedPref?.prefName,
+            });
+          })
+          .catch(() => {
+            alert('データの取得に失敗しました');
+          });
+      } else {
+        const filteredOption = chartOptions.value.series.filter(
+          (el: chartSeries) => el.name === matchedPref?.prefName
+        );
+        chartOptions.value.series = chartOptions.value.series.filter(
+          (el: chartSeries) => {
+            return !filteredOption.includes(el);
+          }
+        );
+      }
+    };
+
+    onMounted(getPrefData);
+
+    return {
+      prefItems,
+      chartOptions,
+      createPopulationGraph,
+    };
   },
 });
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style scoped>
+.pref__list {
+  margin-bottom: 40px;
+}
+
+.pref__item {
+  display: inline-block;
 }
 </style>
