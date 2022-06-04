@@ -31,7 +31,7 @@ interface PrefItems {
   prefName: string;
 }
 
-interface chartSeries {
+interface ChartSeries {
   data: number;
   name: string;
 }
@@ -87,11 +87,11 @@ export default defineComponent({
         enabled: false,
       },
     });
-    const createPopulationGraph = (value: number, $event: any) => {
+    const createPopulationGraph = (value: number, $event: Event) => {
       const matchedPref = prefItems.value.find(
         (item) => item.prefCode === value
       );
-      if ($event.target.checked) {
+      if (($event.target as HTMLInputElement).checked) {
         const REQUEST_URL = `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${value}`;
         const config = {
           headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
@@ -118,10 +118,10 @@ export default defineComponent({
           });
       } else {
         const filteredOption = chartOptions.value.series.filter(
-          (el: chartSeries) => el.name === matchedPref?.prefName
+          (el: ChartSeries) => el.name === matchedPref?.prefName
         );
         chartOptions.value.series = chartOptions.value.series.filter(
-          (el: chartSeries) => {
+          (el: ChartSeries) => {
             return !filteredOption.includes(el);
           }
         );
