@@ -2,7 +2,8 @@
   <div class="pref">
     <h1>コーディングテスト</h1>
     <h2>都道府県</h2>
-    <div class="pref__list">
+    <p class="pref__loading" v-if="prefLoading">Loading...</p>
+    <div v-if="!prefLoading" class="pref__list">
       <div
         v-for="(prefItem, index) in prefItems"
         :key="index"
@@ -50,6 +51,7 @@ export default defineComponent({
       },
     };
 
+    let prefLoading = ref<boolean>(true);
     const prefItems = ref<PrefItems[]>([]);
     const getPrefData = () => {
       const REQUEST_URL =
@@ -58,8 +60,10 @@ export default defineComponent({
         .get(REQUEST_URL, config)
         .then((response) => {
           prefItems.value = response.data.result;
+          prefLoading.value = false;
         })
         .catch(() => {
+          prefLoading.value = false;
           alert('データの取得に失敗しました');
         });
     };
@@ -126,12 +130,17 @@ export default defineComponent({
       prefItems,
       chartOptions,
       createPopulationGraph,
+      prefLoading,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.pref__loading {
+  text-align: center;
+}
+
 .pref__list {
   margin-bottom: 40px;
 }
