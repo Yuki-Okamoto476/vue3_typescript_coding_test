@@ -42,18 +42,19 @@ export default defineComponent({
     highcharts: Chart,
   },
   setup() {
+    const config = {
+      headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
+      timeout: 30000,
+      params: {
+        cache: new Date().getTime(),
+      },
+    };
+
     const prefItems = ref<PrefItems[]>([]);
     const getPrefData = () => {
       // const API_KEY = 'IcOTaQWbCRGx0Y3uUg1sUmvTzqgJByvUvCzqCXjr'
       const REQUEST_URL =
         'https://opendata.resas-portal.go.jp/api/v1/prefectures';
-      const config = {
-        headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
-        timeout: 30000,
-        params: {
-          cache: new Date().getTime(),
-        },
-      };
       axios
         .get(REQUEST_URL, config)
         .then((response) => {
@@ -93,13 +94,6 @@ export default defineComponent({
       );
       if (($event.target as HTMLInputElement).checked) {
         const REQUEST_URL = `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${value}`;
-        const config = {
-          headers: { 'X-API-KEY': process.env.VUE_APP_API_KEY },
-          timeout: 30000,
-          params: {
-            cache: new Date().getTime(),
-          },
-        };
         axios
           .get(REQUEST_URL, config)
           .then((response) => {
@@ -139,7 +133,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .pref__list {
   margin-bottom: 40px;
 }
