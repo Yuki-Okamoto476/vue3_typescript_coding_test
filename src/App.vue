@@ -52,7 +52,6 @@ export default defineComponent({
 
     const prefItems = ref<PrefItems[]>([]);
     const getPrefData = () => {
-      // const API_KEY = 'IcOTaQWbCRGx0Y3uUg1sUmvTzqgJByvUvCzqCXjr'
       const REQUEST_URL =
         'https://opendata.resas-portal.go.jp/api/v1/prefectures';
       axios
@@ -64,6 +63,7 @@ export default defineComponent({
           alert('データの取得に失敗しました');
         });
     };
+    onMounted(getPrefData);
 
     const chartOptions = ref<any>({
       series: [],
@@ -121,8 +121,6 @@ export default defineComponent({
         );
       }
     };
-
-    onMounted(getPrefData);
 
     return {
       prefItems,
