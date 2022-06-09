@@ -102,7 +102,7 @@ export default defineComponent({
           .get(REQUEST_URL, config)
           .then((response) => {
             const result = response.data.result.data[0].data;
-            const resultData = [] as Array<number>;
+            const resultData = [];
             for (let i = 0; i < result.length; i++) {
               resultData.push(result[i].value);
             }
