@@ -2,8 +2,8 @@
   <div class="pref">
     <h1>コーディングテスト</h1>
     <h2>都道府県</h2>
-    <p v-if="prefLoading" class="pref__loading">Loading...</p>
-    <div v-if="!prefLoading" class="pref__list">
+    <p v-show="prefLoading" class="pref__loading">Loading...</p>
+    <div v-show="!prefLoading" class="pref__list">
       <div
         v-for="(prefItem, index) in prefItems"
         :key="index"
